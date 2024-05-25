@@ -103,8 +103,7 @@ class FlutterGenColors {
   @JsonKey(name: 'outputs', required: true)
   final FlutterGenElementOutputs outputs;
 
-  factory FlutterGenColors.fromJson(Map json) =>
-      _$FlutterGenColorsFromJson(json);
+  factory FlutterGenColors.fromJson(Map json) => _$FlutterGenColorsFromJson(json);
 }
 
 @JsonSerializable()
@@ -134,8 +133,7 @@ class FlutterGenAssets {
   @JsonKey(name: 'exclude', required: true)
   final List<String> exclude;
 
-  factory FlutterGenAssets.fromJson(Map json) =>
-      _$FlutterGenAssetsFromJson(json);
+  factory FlutterGenAssets.fromJson(Map json) => _$FlutterGenAssetsFromJson(json);
 }
 
 @JsonSerializable()
@@ -157,11 +155,15 @@ class FlutterGenFonts {
 @JsonSerializable()
 class FlutterGenIntegrations {
   FlutterGenIntegrations({
+    required this.flutterImage,
     required this.flutterSvg,
     required this.flareFlutter,
     required this.rive,
     required this.lottie,
   });
+
+  @JsonKey(name: 'flutter_image', required: true)
+  final bool flutterImage;
 
   @JsonKey(name: 'flutter_svg', required: true)
   final bool flutterSvg;
@@ -175,8 +177,7 @@ class FlutterGenIntegrations {
   @JsonKey(name: 'lottie', required: true)
   final bool lottie;
 
-  factory FlutterGenIntegrations.fromJson(Map json) =>
-      _$FlutterGenIntegrationsFromJson(json);
+  factory FlutterGenIntegrations.fromJson(Map json) => _$FlutterGenIntegrationsFromJson(json);
 }
 
 @JsonSerializable()
@@ -188,8 +189,7 @@ class FlutterGenElementOutputs {
   @JsonKey(name: 'class_name', required: true)
   final String className;
 
-  factory FlutterGenElementOutputs.fromJson(Map json) =>
-      _$FlutterGenElementOutputsFromJson(json);
+  factory FlutterGenElementOutputs.fromJson(Map json) => _$FlutterGenElementOutputsFromJson(json);
 }
 
 @JsonSerializable()
@@ -204,9 +204,7 @@ class FlutterGenElementAssetsOutputs extends FlutterGenElementOutputs {
     required this.directoryPathEnabled,
     required this.style,
   }) : super(className: className) {
-    if (style != dotDelimiterStyle &&
-        style != snakeCaseStyle &&
-        style != camelCaseStyle) {
+    if (style != dotDelimiterStyle && style != snakeCaseStyle && style != camelCaseStyle) {
       throw ArgumentError.value(style, 'style');
     }
   }

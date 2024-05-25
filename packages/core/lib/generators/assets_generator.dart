@@ -53,25 +53,23 @@ String generateAssets(
   DartFormatter formatter,
 ) {
   if (config.assets.isEmpty) {
-    throw const InvalidSettingsException(
-        'The value of "flutter/assets:" is incorrect.');
+    throw const InvalidSettingsException('The value of "flutter/assets:" is incorrect.');
   }
 
   final importsBuffer = StringBuffer();
   final classesBuffer = StringBuffer();
 
   final integrations = <Integration>[
-    ImageIntegration(config.packageParameterLiteral,
-        parseMetadata: config.flutterGen.parseMetadata),
+    if (config.flutterGen.integrations.flutterImage)
+      ImageIntegration(config.packageParameterLiteral,
+          parseMetadata: config.flutterGen.parseMetadata),
     if (config.flutterGen.integrations.flutterSvg)
       SvgIntegration(config.packageParameterLiteral,
           parseMetadata: config.flutterGen.parseMetadata),
     if (config.flutterGen.integrations.flareFlutter)
       FlareIntegration(config.packageParameterLiteral),
-    if (config.flutterGen.integrations.rive)
-      RiveIntegration(config.packageParameterLiteral),
-    if (config.flutterGen.integrations.lottie)
-      LottieIntegration(config.packageParameterLiteral),
+    if (config.flutterGen.integrations.rive) RiveIntegration(config.packageParameterLiteral),
+    if (config.flutterGen.integrations.lottie) LottieIntegration(config.packageParameterLiteral),
   ];
 
   // ignore: deprecated_member_use_from_same_package
@@ -167,9 +165,7 @@ String generateAssets(
   }
 
   final imports = <String>{};
-  integrations
-      .where((integration) => integration.isEnabled)
-      .forEach((integration) {
+  integrations.where((integration) => integration.isEnabled).forEach((integration) {
     imports.addAll(integration.requiredImports);
     classesBuffer.writeln(integration.classOutput);
   });
@@ -228,8 +224,7 @@ List<String> _getAssetRelativePathList(
       .toList();
 }
 
-AssetType _constructAssetTree(
-    List<String> assetRelativePathList, String rootPath) {
+AssetType _constructAssetTree(List<String> assetRelativePathList, String rootPath) {
   // Relative path is the key
   final assetTypeMap = <String, AssetType>{
     '.': AssetType(rootPath: rootPath, path: '.'),
@@ -237,8 +232,7 @@ AssetType _constructAssetTree(
   for (final assetPath in assetRelativePathList) {
     var path = assetPath;
     while (path != '.') {
-      assetTypeMap.putIfAbsent(
-          path, () => AssetType(rootPath: rootPath, path: path));
+      assetTypeMap.putIfAbsent(path, () => AssetType(rootPath: rootPath, path: path));
       path = dirname(path);
     }
   }
@@ -319,8 +313,8 @@ String _dotDelimiterStyleDefinition(
   );
   final assetsStaticStatements = <_Statement>[];
 
-  final assetTypeQueue = ListQueue<AssetType>.from(
-      _constructAssetTree(assetRelativePathList, rootPath).children);
+  final assetTypeQueue =
+      ListQueue<AssetType>.from(_constructAssetTree(assetRelativePathList, rootPath).children);
 
   while (assetTypeQueue.isNotEmpty) {
     final assetType = assetTypeQueue.removeFirst();
@@ -332,8 +326,8 @@ String _dotDelimiterStyleDefinition(
       assetPath = File(assetPath).absolute.uri.toFilePath();
     }
 
-    final isRootAsset = !isDirectory &&
-        File(assetPath).parent.absolute.uri.toFilePath() == rootPath;
+    final isRootAsset =
+        !isDirectory && File(assetPath).parent.absolute.uri.toFilePath() == rootPath;
     // Handles directories, and explicitly handles root path assets.
     if (isDirectory || isRootAsset) {
       final statements = assetType.children
@@ -365,9 +359,7 @@ String _dotDelimiterStyleDefinition(
           _directoryClassGenDefinition(
             className,
             statements,
-            config.flutterGen.assets.outputs.directoryPathEnabled
-                ? assetType.posixStylePath
-                : null,
+            config.flutterGen.assets.outputs.directoryPathEnabled ? assetType.posixStylePath : null,
           ),
         );
         // Add this directory reference to Assets class
@@ -456,8 +448,7 @@ String _flatStyleAssetsClassDefinition(
   List<_Statement> statements,
   String? packageName,
 ) {
-  final statementsBlock =
-      statements.map((statement) => '''${statement.toDartDocString()}
+  final statementsBlock = statements.map((statement) => '''${statement.toDartDocString()}
            ${statement.toStaticFieldString()}
            ''').join('\n');
   final valuesBlock = _assetValuesDefinition(statements, static: true);
@@ -475,8 +466,7 @@ String _dotDelimiterStyleAssetsClassDefinition(
   List<_Statement> statements,
   String? packageName,
 ) {
-  final statementsBlock =
-      statements.map((statement) => statement.toStaticFieldString()).join('\n');
+  final statementsBlock = statements.map((statement) => statement.toStaticFieldString()).join('\n');
   final valuesBlock = _assetValuesDefinition(statements, static: true);
   return _assetsClassDefinition(
     className,
@@ -494,9 +484,8 @@ String _assetValuesDefinition(
   final values = statements.where((element) => !element.isDirectory);
   if (values.isEmpty) return '';
   final names = values.map((value) => value.name).join(', ');
-  final type = values.every((element) => element.type == values.first.type)
-      ? values.first.type
-      : 'dynamic';
+  final type =
+      values.every((element) => element.type == values.first.type) ? values.first.type : 'dynamic';
 
   return '''
   /// List of all assets
